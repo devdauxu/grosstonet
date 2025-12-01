@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Công cụ tính lương Gross - Net Chuẩn 2025</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Công cụ tính lương Gross - Net</h1>
+            <p>Áp dụng mức giảm trừ gia cảnh mới nhất (Nghị quyết 954/2020/UBTVQH14)</p>
+            <p>Lương cơ sở 2.340.000đ (Từ 01/07/2024)</p>
+        </header>
+
+        <main class="calculator-card">
+            <div class="year-toggle-container">
+                <div class="year-toggle">
+                    <button id="btn-year-2025" class="toggle-btn active" onclick="switchYear(2025)">Hiện hành
+                        (2025)</button>
+                    <button id="btn-year-2026" class="toggle-btn" onclick="switchYear(2026)">Dự thảo (2026)</button>
+                </div>
+                <p id="policy-note" class="policy-note">Giảm trừ gia cảnh: Bản thân 11tr/tháng, Phụ thuộc 4.4tr/tháng
+                </p>
+            </div>
+
+            <div class="input-section">
+                <div class="mode-toggle">
+                    <button id="btn-gross-net" class="toggle-btn active" onclick="switchMode('gross-net')">GROSS &rarr;
+                        NET</button>
+                    <button id="btn-net-gross" class="toggle-btn" onclick="switchMode('net-gross')">NET &rarr;
+                        GROSS</button>
+                </div>
+
+                <div class="form-group">
+                    <label for="income">Thu nhập (VNĐ)</label>
+                    <input type="text" id="income" placeholder="Nhập mức lương của bạn"
+                        oninput="formatCurrencyInput(this)">
+                </div>
+
+                <div class="form-group">
+                    <label for="dependents">Số người phụ thuộc</label>
+                    <input type="number" id="dependents" value="0" min="0">
+                </div>
+
+                <div class="form-group">
+                    <label>Mức lương đóng bảo hiểm</label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="insurance-base" value="official" checked
+                                onchange="toggleInsuranceInput()">
+                            Trên lương chính thức
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="insurance-base" value="other" onchange="toggleInsuranceInput()">
+                            Khác
+                        </label>
+                    </div>
+                    <input type="text" id="insurance-salary" class="hidden" placeholder="Nhập mức lương đóng BH"
+                        oninput="formatCurrencyInput(this)">
+                </div>
+
+                <div class="form-group">
+                    <label>Vùng (Quy định mức lương tối thiểu vùng)</label>
+                    <div class="radio-group region-group">
+                        <label class="radio-label"><input type="radio" name="region" value="1" checked> I</label>
+                        <label class="radio-label"><input type="radio" name="region" value="2"> II</label>
+                        <label class="radio-label"><input type="radio" name="region" value="3"> III</label>
+                        <label class="radio-label"><input type="radio" name="region" value="4"> IV</label>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn-calculate" onclick="calculate()">Tính toán</button>
+                </div>
+            </div>
+
+            <div class="result-section" id="result-section">
+                <div class="summary-card">
+                    <div class="summary-item">
+                        <span class="label">Lương GROSS</span>
+                        <span class="value" id="res-gross">0</span>
+                    </div>
+                    <div class="summary-item highlight">
+                        <span class="label">Lương NET</span>
+                        <span class="value" id="res-net">0</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="label">Thuế TNCN</span>
+                        <span class="value" id="res-pit">0</span>
+                    </div>
+                </div>
+
+                <div class="details-table">
+                    <h3>Diễn giải chi tiết (VNĐ)</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Khoản mục</th>
+                                <th>Chi tiết</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Lương GROSS</td>
+                                <td id="detail-gross" class="text-right">0</td>
+                            </tr>
+                            <tr>
+                                <td>Bảo hiểm xã hội (8%)</td>
+                                <td id="detail-bhxh" class="text-right">-</td>
+                            </tr>
+                            <tr>
+                                <td>Bảo hiểm y tế (1.5%)</td>
+                                <td id="detail-bhyt" class="text-right">-</td>
+                            </tr>
+                            <tr>
+                                <td>Bảo hiểm thất nghiệp (1%)</td>
+                                <td id="detail-bhtn" class="text-right">-</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Thu nhập trước thuế</strong></td>
+                                <td id="detail-pre-tax" class="text-right bold">0</td>
+                            </tr>
+                            <tr>
+                                <td>Giảm trừ gia cảnh bản thân</td>
+                                <td class="text-right">11,000,000</td>
+                            </tr>
+                            <tr>
+                                <td>Giảm trừ người phụ thuộc</td>
+                                <td id="detail-dependents" class="text-right">0</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Thu nhập chịu thuế</strong></td>
+                                <td id="detail-taxable" class="text-right bold">0</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Thuế thu nhập cá nhân (*)</strong></td>
+                                <td id="detail-pit" class="text-right bold">0</td>
+                            </tr>
+                            <tr class="final-row">
+                                <td><strong>Lương NET</strong></td>
+                                <td id="detail-net" class="text-right bold">0</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p class="note">(*) Chi tiết thuế TNCN theo bậc thang sẽ được hiển thị nếu có.</p>
+                </div>
+
+                <div id="pit-details-container" class="details-table hidden" style="margin-top: 20px;">
+                    <h3>Chi tiết thuế Thu nhập cá nhân (VNĐ)</h3>
+                    <table id="pit-details-table">
+                        <thead>
+                            <tr>
+                                <th>Mức chịu thuế</th>
+                                <th>Thuế suất</th>
+                                <th>Tiền nộp</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Generated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+
+</html>
