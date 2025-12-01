@@ -83,6 +83,12 @@ body {
     font-weight: 500;
 }
 
+.policy-note strong {
+    color: var(--primary-color);
+    font-weight: 700;
+    font-size: 0.95rem;
+}
+
 .mode-toggle {
     display: flex;
     background-color: #ebecf0;
@@ -276,6 +282,64 @@ body {
     font-size: 0.85rem;
     color: var(--text-secondary);
     font-style: italic;
+}
+
+/* Comparison Section */
+.comparison-section {
+    margin-top: 30px;
+    padding-top: 30px;
+    border-top: 2px solid var(--border-color);
+}
+
+.comparison-section h2 {
+    font-size: 1.3rem;
+    color: var(--primary-color);
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.comparison-table-wrapper {
+    overflow-x: auto;
+}
+
+.comparison-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 15px;
+}
+
+.comparison-table th,
+.comparison-table td {
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    text-align: left;
+}
+
+.comparison-table th {
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: 600;
+}
+
+.comparison-table tbody tr:nth-child(even) {
+    background-color: #f9fafb;
+}
+
+.comparison-table .diff-value.positive {
+    color: #00b14f;
+    font-weight: 600;
+}
+
+.comparison-table .diff-value.negative {
+    color: #e74c3c;
+    font-weight: 600;
+}
+
+.comparison-note {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-style: italic;
+    text-align: center;
 }
 
 @media (max-width: 600px) {

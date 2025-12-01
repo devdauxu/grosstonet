@@ -25,6 +25,8 @@
                     <button id="btn-year-2025" class="toggle-btn active" onclick="switchYear(2025)">Hiện hành
                         (2025)</button>
                     <button id="btn-year-2026" class="toggle-btn" onclick="switchYear(2026)">Dự thảo (2026)</button>
+                    <button id="btn-compare" class="toggle-btn" onclick="switchToCompare()">So sánh 2025 vs
+                        2026</button>
                 </div>
                 <p id="policy-note" class="policy-note">Giảm trừ gia cảnh: Bản thân 11tr/tháng, Phụ thuộc 4.4tr/tháng
                 </p>
@@ -167,6 +169,44 @@
                         </tbody>
                     </table>
                 </div>
+            </div>
+
+            <!-- Comparison Section -->
+            <div id="comparison-section" class="comparison-section hidden">
+                <h2>So sánh chính sách 2025 vs 2026</h2>
+                <div class="comparison-table-wrapper">
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Khoản mục</th>
+                                <th>Hiện hành (2025)</th>
+                                <th>Dự thảo (2026)</th>
+                                <th>Chênh lệch</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Lương GROSS</strong></td>
+                                <td id="comp-gross-2025" class="text-right">0</td>
+                                <td id="comp-gross-2026" class="text-right">0</td>
+                                <td id="comp-gross-diff" class="text-right">0</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Lương NET</strong></td>
+                                <td id="comp-net-2025" class="text-right">0</td>
+                                <td id="comp-net-2026" class="text-right">0</td>
+                                <td id="comp-net-diff" class="text-right diff-value">0</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Thuế TNCN</strong></td>
+                                <td id="comp-tax-2025" class="text-right">0</td>
+                                <td id="comp-tax-2026" class="text-right">0</td>
+                                <td id="comp-tax-diff" class="text-right diff-value">0</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="comparison-note">* Chênh lệch = Dự thảo (2026) - Hiện hành (2025)</p>
             </div>
         </main>
     </div>

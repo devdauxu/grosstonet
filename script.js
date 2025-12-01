@@ -46,17 +46,39 @@ const TAX_CONFIG = {
 
 let currentYear = 2025;
 let currentMode = 'gross-net'; // 'gross-net' or 'net-gross'
+let isComparisonMode = false;
 
 function switchYear(year) {
+    isComparisonMode = false;
     currentYear = year;
     document.getElementById('btn-year-2025').classList.toggle('active', year === 2025);
     document.getElementById('btn-year-2026').classList.toggle('active', year === 2026);
+    document.getElementById('btn-compare').classList.remove('active');
+
+    // Show regular result, hide comparison
+    document.getElementById('result-section').classList.remove('hidden');
+    document.getElementById('comparison-section').classList.add('hidden');
 
     const config = TAX_CONFIG[year];
-    const note = `Giảm trừ gia cảnh: Bản thân ${formatCurrency(config.personalDeduction / 1000000)}tr/tháng, Phụ thuộc ${formatCurrency(config.dependentDeduction / 1000000)}tr/tháng`;
-    document.getElementById('policy-note').textContent = note;
+    const note = `Giảm trừ gia cảnh: Bản thân <strong>${formatCurrency(config.personalDeduction / 1000000)}tr</strong>/tháng, Phụ thuộc <strong>${formatCurrency(config.dependentDeduction / 1000000)}tr</strong>/tháng`;
+    document.getElementById('policy-note').innerHTML = note;
 
     calculate();
+}
+
+function switchToCompare() {
+    isComparisonMode = true;
+    document.getElementById('btn-year-2025').classList.remove('active');
+    document.getElementById('btn-year-2026').classList.remove('active');
+    document.getElementById('btn-compare').classList.add('active');
+
+    // Hide regular result, show comparison
+    document.getElementById('result-section').classList.add('hidden');
+    document.getElementById('comparison-section').classList.remove('hidden');
+
+    document.getElementById('policy-note').innerHTML = 'So sánh chính sách Hiện hành (2025) và Dự thảo (2026)';
+
+    calculateComparison();
 }
 
 function switchMode(mode) {
@@ -173,6 +195,11 @@ function calculate() {
 
     if (income === 0) return;
 
+    if (isComparisonMode) {
+        calculateComparison();
+        return;
+    }
+
     let gross, net;
 
     if (currentMode === 'gross-net') {
@@ -186,6 +213,67 @@ function calculate() {
         const result = calculateFromNet(net, dependents, region, insuranceType, insuranceSalaryInput);
         updateUI(result);
     }
+}
+
+function calculateComparison() {
+    const income = parseCurrency(document.getElementById('income').value);
+    const dependents = parseInt(document.getElementById('dependents').value) || 0;
+    const region = document.querySelector('input[name="region"]:checked').value;
+    const insuranceType = document.querySelector('input[name="insurance-base"]:checked').value;
+    let insuranceSalaryInput = parseCurrency(document.getElementById('insurance-salary').value);
+
+    if (income === 0) return;
+
+    // Calculate for 2025
+    const savedYear = currentYear;
+    currentYear = 2025;
+    let result2025;
+    if (currentMode === 'gross-net') {
+        result2025 = calculateFromGross(income, dependents, region, insuranceType, insuranceSalaryInput);
+    } else {
+        result2025 = calculateFromNet(income, dependents, region, insuranceType, insuranceSalaryInput);
+    }
+
+    // Calculate for 2026
+    currentYear = 2026;
+    let result2026;
+    if (currentMode === 'gross-net') {
+        result2026 = calculateFromGross(income, dependents, region, insuranceType, insuranceSalaryInput);
+    } else {
+        result2026 = calculateFromNet(income, dependents, region, insuranceType, insuranceSalaryInput);
+    }
+
+    // Restore current year
+    currentYear = savedYear;
+
+    // Update comparison UI
+    updateComparisonUI(result2025, result2026);
+}
+
+function updateComparisonUI(result2025, result2026) {
+    // Gross
+    document.getElementById('comp-gross-2025').textContent = formatCurrency(Math.round(result2025.gross));
+    document.getElementById('comp-gross-2026').textContent = formatCurrency(Math.round(result2026.gross));
+    const grossDiff = result2026.gross - result2025.gross;
+    document.getElementById('comp-gross-diff').textContent = formatCurrency(Math.round(grossDiff));
+
+    // Net
+    document.getElementById('comp-net-2025').textContent = formatCurrency(Math.round(result2025.net));
+    document.getElementById('comp-net-2026').textContent = formatCurrency(Math.round(result2026.net));
+    const netDiff = result2026.net - result2025.net;
+    const netDiffEl = document.getElementById('comp-net-diff');
+    netDiffEl.textContent = (netDiff >= 0 ? '+' : '') + formatCurrency(Math.round(netDiff));
+    netDiffEl.classList.toggle('positive', netDiff > 0);
+    netDiffEl.classList.toggle('negative', netDiff < 0);
+
+    // Tax
+    document.getElementById('comp-tax-2025').textContent = formatCurrency(Math.round(result2025.pit));
+    document.getElementById('comp-tax-2026').textContent = formatCurrency(Math.round(result2026.pit));
+    const taxDiff = result2026.pit - result2025.pit;
+    const taxDiffEl = document.getElementById('comp-tax-diff');
+    taxDiffEl.textContent = (taxDiff >= 0 ? '+' : '') + formatCurrency(Math.round(taxDiff));
+    taxDiffEl.classList.toggle('positive', taxDiff < 0); // Lower tax is positive
+    taxDiffEl.classList.toggle('negative', taxDiff > 0); // Higher tax is negative
 }
 
 function calculateFromGross(gross, dependents, region, insuranceType, insuranceSalaryInput) {
